@@ -5,6 +5,9 @@ import io.grpc.ManagedChannelBuilder;
 import pt.tecnico.ttt.*;
 import pt.tecnico.ttt.PlayResult;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class TTTClient {
@@ -98,15 +101,23 @@ public class TTTClient {
 					column = go % 3;
 					debug("row = " + row + ", column = " + column);
 
-					// TODO call play and set the proper play result
-					play_res = PlayResult.UNKNOWN;
+					// call play and set the proper play result
+					List<Integer> play = new ArrayList<Integer>();
+					play.add(row);
+					play.add(column);
+					play.add(player);
+					PlayRequest play_request = PlayRequest.newBuilder().addAllPlay(play).build();
+
+					play_res = stub.play(play_request).getResult();
 					if (play_res != PlayResult.SUCCESS) {
 						displayResult(play_res);
 					}
 
 				} while (play_res != PlayResult.SUCCESS);
 
-				// TODO call check winner and set the winning player.
+				// call check winner and set the winning player.
+				CheckWinnerRequest check_winner_request = CheckWinnerRequest.getDefaultInstance();
+				winner = stub.checkWinner(check_winner_request).getWinner();
 
 				/* Select next player. */
 				player = (player + 1) % 2;
