@@ -3,6 +3,8 @@ package pt.tecnico.ttt.server;
 import io.grpc.stub.StreamObserver;
 import pt.tecnico.ttt.*;
 
+import java.util.List;
+
 public class TTTServiceImpl extends TTTGrpc.TTTImplBase {
 
 	/** Game implementation. */
@@ -21,4 +23,29 @@ public class TTTServiceImpl extends TTTGrpc.TTTImplBase {
 		responseObserver.onCompleted();
 	}
 
+	@Override
+	public void play(PlayRequest request, StreamObserver<PlayResponse> responseObserver) {
+		List<Integer> play = request.getPlayList();
+		PlayResult result = ttt.play(play.get(0), play.get(1), play.get(2));
+
+		PlayResponse response = PlayResponse.newBuilder().setResult(result).build();
+
+		// Send a single response through the stream.
+		responseObserver.onNext(response);
+		// Notify the client that the operation has been completed.
+		responseObserver.onCompleted();
+	}
+
+	@Override
+	public void checkWinner(CheckWinnerRequest request, StreamObserver<CheckWinnerResponse> responseObserver) {
+		// StreamObserver is used to represent the gRPC stream between the server and
+		// client in order to send the appropriate responses (or errors, if any occur).
+
+		CheckWinnerResponse response = CheckWinnerResponse.newBuilder().setWinner(ttt.checkWinner()).build();
+
+		// Send a single response through the stream.
+		responseObserver.onNext(response);
+		// Notify the client that the operation has been completed.
+		responseObserver.onCompleted();
+	}
 }
