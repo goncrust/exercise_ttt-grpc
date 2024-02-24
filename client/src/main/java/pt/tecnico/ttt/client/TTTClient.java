@@ -77,7 +77,18 @@ public class TTTClient {
 
 			/* The main game loop. The game continues for up to 9 turns, */
 			/* as long as there is no winner. */
+
+			System.out.println("Type 1 for playing mode or type 0 for waitForWinnerMode: ");
+			int mode = scanner.nextInt();
+
 			do {
+				if (mode != 1) {
+					System.out.println("Waiting for winner...");
+					WaitForWinnerRequest request = WaitForWinnerRequest.getDefaultInstance();
+					winner = stub.waitForWinner(request).getWinner();
+					break;
+				}
+
 				/* Get valid player square selection. */
 				do {
 					/* Print current board. */

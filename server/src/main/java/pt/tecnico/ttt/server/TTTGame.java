@@ -42,6 +42,8 @@ public class TTTGame {
 			board[row][column] = (player == 1) ? 'X' : 'O';  /* Insert player symbol */
 			nextPlayer = (nextPlayer + 1) % 2;
 			numPlays++;
+
+			notifyAll();
 			return PlayResult.SUCCESS;
 		}
 	}
@@ -94,7 +96,19 @@ public class TTTGame {
 		return result; 
 
 	}
-	
+
+	public synchronized int waitForWinner() {
+		int winner;
+		while ((winner = checkWinner()) == -1) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return winner;
+	}
+
 	public void resetBoard() {
 		board = new char[][] {
 			{'1', '2', '3'},
@@ -102,5 +116,4 @@ public class TTTGame {
 			{'7', '8', '9'}
 		};
 	}
-	
 }
