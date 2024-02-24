@@ -1,6 +1,7 @@
 package pt.tecnico.ttt.server;
 
 import io.grpc.stub.StreamObserver;
+import static io.grpc.Status.INVALID_ARGUMENT;
 import pt.tecnico.ttt.*;
 
 import java.util.List;
@@ -27,6 +28,12 @@ public class TTTServiceImpl extends TTTGrpc.TTTImplBase {
 	public void play(PlayRequest request, StreamObserver<PlayResponse> responseObserver) {
 		List<Integer> play = request.getPlayList();
 		PlayResult result = ttt.play(play.get(0), play.get(1), play.get(2));
+
+		// if play out of bounds, send exception
+		if (result == PlayResult.OUT_OF_BOUNDS) {
+			responseObserver.onError(INVALID_ARGUMENT.withDescription("Input as to be a valid position").asRuntimeException());
+			return;
+		}
 
 		PlayResponse response = PlayResponse.newBuilder().setResult(result).build();
 
